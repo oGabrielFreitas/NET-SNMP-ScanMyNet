@@ -1,0 +1,129 @@
+-- ----------------------------------------------
+-- MIB for ScanMyNet Application
+--
+-- Author: 
+-- Gabriel Giacomini de Freitas
+--
+-- ----------------------------------------------
+
+-- Intitial definition
+SCANMYNET-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+	OBJECT-TYPE,
+    IpAddress, Counter, TimeTicks, 
+    experimental
+		FROM RFC1155-SMI
+;
+
+scanmynet OBJECT IDENTIFIER ::= { experimental 1 }
+
+
+-- Main Functions
+smnTarget OBJECT-TYPE
+    SYNTAX IpAddress
+    ACCESS read-write
+    STATUS optional
+    DESCRIPTION "Define the target IP Address. It's 10.0.2.1/24 by default."
+::= { scanmynet 1 }
+
+smnJump OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-write
+    STATUS optional
+    DESCRIPTION "Use to jump inital notes, for fast scrip execution."
+::= { scanmynet 2 }
+
+smnSimualte OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-write
+    STATUS optional
+    DESCRIPTION "Simulate new IPs discovers every single scan. The idea is to show that discovered IPs memory, works and the scripts is running well."
+::= { scanmynet 3 }
+
+smnScanStart OBJECT-TYPE
+    SYNTAX TimeTicks
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION "Start scan at defined IPs."
+    
+::= { scanmynet 4 }
+
+
+-- --------------------------------------
+-- TABLE
+
+smnDevicesNumber OBJECT-TYPE
+    SYNTAX Counter
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "The total number of dicovered devices"
+::= { scanmynet 5 }
+
+smnDevicesTable OBJECT-TYPE 
+    SYNTAX SEQUENCE OF SmnTableResponse
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION "List of discovered devices."
+::= { scanmynet 6 }
+
+smnDevicesTableEntry OBJECT-TYPE 
+    SYNTAX SmnTableResponse
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION "Table with infos of each discovered device. They are indexed by tabID."
+INDEX { tabID }
+::= { smnDevicesTable 1 }
+ 
+SmnTableResponse ::= SEQUENCE {
+    tabID    INTEGER,
+    dateTime  OCTET STRING,
+    ipDeviceAddress   IpAddress,
+    isRouter      INTEGER,
+    macAddress  OCTET STRING,
+    macVendor   OCTET STRING 
+}
+
+tabID OBJECT-TYPE
+    SYNTAX INTEGER (1..2147483647)
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "The index identify of each discovered device."         
+::= { smnDevicesTableEntry 1 }
+
+dateTime OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..255))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Date time of discovery."
+::= { smnDevicesTableEntry 2 }
+
+ipDeviceAddress OBJECT-TYPE
+    SYNTAX IpAddress
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "IP of discovered device."         
+::= { smnDevicesTableEntry 3 }
+
+isRouter OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "True or false about the device be a router."         
+::= { smnDevicesTableEntry 4 }
+
+macAddress OBJECT-TYPE
+    SYNTAX OCTET STRING
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Device's MAC"         
+::= { smnDevicesTableEntry 5 }
+
+macVendor OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..255))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Device's MAC vendor."
+::= { smnDevicesTableEntry 6 }
+
+
+END
