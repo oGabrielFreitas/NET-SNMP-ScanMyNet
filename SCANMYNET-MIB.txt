@@ -2,7 +2,7 @@
 -- MIB for ScanMyNet Application
 --
 -- Author: 
--- Gabriel Giacomini de Freitas
+-- Gabriel Freitas
 --
 -- ----------------------------------------------
 
